@@ -3,7 +3,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 import requests
 
 # URL donde corre FastAPI (ajústala según sea necesario)
-MAIN_API_URL = "http://localhost:8000/api/chat/consultas-generales"
+MAIN_API_URL = "https://geobottwilio.onrender.com/consultas-generales"
 
 app = Flask(__name__)
 

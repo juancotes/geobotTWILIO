@@ -48,7 +48,7 @@ class QueryRequest(BaseModel):
     user_id: str  # Identificador único del usuario
     message: str  # Mensaje del usuario
 
-@app.post("/api/chat/consultas-generales")
+@app.post("/consultas-generales")
 def consultar_geobot(request: QueryRequest):
     """
     Recibe la consulta del usuario y la envía a OpenAI con el historial de conversación.

@@ -93,6 +93,12 @@ def consultar_geobot(request: QueryRequest):
 
 
 
+
+
+
+
+
+'''
 # 🚀 Ruta para manejar mensajes de WhatsApp desde Twilio
 @app.post("/", response_class=PlainTextResponse)
 def sms_reply(Body: str = Form(...), From: str = Form(...)):
@@ -115,4 +121,44 @@ def sms_reply(Body: str = Form(...), From: str = Form(...)):
 
     return str(twilio_response)
 
+'''
+# 🚀 Ruta para manejar mensajes de WhatsApp desde Twilio
+@app.post("/", response_class=PlainTextResponse)
+def sms_reply(Body: str = Form(...), From: str = Form(...)):
+    """
+    Recibe un mensaje de WhatsApp a través de Twilio y responde en formato TwiML.
+    """
+    print(f"📨 El usuario {From} envió: {Body}")
+
+    # Si el usuario no tiene historial, inicializarlo
+    if From not in chat_histories:
+        chat_histories[From] = [SYSTEM_PROMPT]
+
+    # Agregar el mensaje del usuario al historial
+    chat_histories[From].append({"role": "user", "content": Body})
+
+    # Mantener solo los últimos 10 mensajes
+    chat_histories[From] = chat_histories[From][-10:]
+
+    # Enviar el mensaje a la API de OpenAI
+    payload = {
+        "model": "gpt-4-turbo",
+        "messages": chat_histories[From]
+    }
+    response = requests.post(OPENAI_API_URL, json=payload, headers=HEADERS)
+
+    # Manejar respuesta del bot
+    if response.status_code == 200:
+        bot_reply = response.json().get("choices", [{}])[0].get("message", {}).get("content", "Error en la respuesta.")
+    else:
+        bot_reply = "Error en el servidor."
+
+    # Agregar la respuesta del bot al historial
+    chat_histories[From].append({"role": "assistant", "content": bot_reply})
+
+    # Generar respuesta en formato TwiML (XML)
+    twilio_response = MessagingResponse()
+    twilio_response.message(bot_reply)
+
+    return str(twilio_response)
 

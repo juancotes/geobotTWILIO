@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Form
 from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
+from fastapi.responses import Response
 from pydantic import BaseModel
 from twilio.twiml.messaging_response import MessagingResponse
 import requests
@@ -123,7 +124,7 @@ def sms_reply(Body: str = Form(...), From: str = Form(...)):
 
 '''
 # 🚀 Ruta para manejar mensajes de WhatsApp desde Twilio
-@app.post("/", response_class=PlainTextResponse)
+@app.post("/", response_class=Response)
 def sms_reply(Body: str = Form(...), From: str = Form(...)):
     """
     Recibe un mensaje de WhatsApp a través de Twilio y responde en formato TwiML.
@@ -160,5 +161,6 @@ def sms_reply(Body: str = Form(...), From: str = Form(...)):
     twilio_response = MessagingResponse()
     twilio_response.message(bot_reply)
 
-    return str(twilio_response)
+    return Response(content=str(twilio_response), media_type="text/xml")  # ✅ Fijar el Content-Type correcto
+
 

@@ -91,32 +91,7 @@ def consultar_geobot(request: QueryRequest):
 
     return {"reply": bot_reply}
 
-@app.post("/", response_class=PlainTextResponse)
-async def sms_reply(request: Request):
-    """
-    Recibe un mensaje de WhatsApp a través de Twilio y lo envía a OpenAI.
-    Devuelve la respuesta en formato TwiML.
-    """
-    form_data = await request.form()
-    body = form_data.get("Body", "Mensaje vacío")  # Evita error si falta el campo
-    sender = form_data.get("From", "Desconocido")
 
-    print(f"📨 Mensaje recibido de {sender}: {body}")
-
-    # Enviar mensaje a OpenAI o a otro servicio
-    payload = {"user_id": sender, "message": body}
-    response = requests.post("https://geobottwilio.onrender.com/consultas-generales", json=payload)
-
-    bot_reply = response.json().get("reply", "Error en la respuesta.") if response.status_code == 200 else "Error en el servidor."
-
-    # Responder con Twilio MessagingResponse
-    twilio_response = MessagingResponse()
-    twilio_response.message(bot_reply)
-
-    return str(twilio_response)
-
-
-'''
 
 # 🚀 Ruta para manejar mensajes de WhatsApp desde Twilio
 @app.post("/", response_class=PlainTextResponse)
@@ -139,5 +114,5 @@ def sms_reply(Body: str = Form(...), From: str = Form(...)):
     twilio_response.message(bot_reply)
 
     return str(twilio_response)
-'''
+
 
